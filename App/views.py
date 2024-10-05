@@ -3,6 +3,9 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+from rest_framework.views import APIView
+
 from .models import Task
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -69,3 +72,13 @@ class CreateTaskViewGetById(View):
 
         # Return the task data as JSON
         return JsonResponse(task_data, status=200)
+
+# Delete task by ID
+class TaskDeleteView(APIView):
+    def delete(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+            task.delete()
+            return JsonResponse({'message': 'Task deleted successfully'}, status=200)
+        except Task.DoesNotExist:
+            return JsonResponse({'error': 'Task not found'}, status=404)
