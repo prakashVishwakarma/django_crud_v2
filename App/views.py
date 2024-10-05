@@ -48,3 +48,24 @@ class CreateTaskView(View):
 
         # Return a Response with the list of tasks
         return JsonResponse(task_list, safe=False)
+
+class CreateTaskViewGetById(View):
+
+    def get(self, request, task_id):
+        try:
+            # Fetch task by ID or raise 404 if not found
+            task = Task.objects.get(id=task_id)
+        except Task.DoesNotExist:
+            # Return custom 404 response when the task is not found
+            return JsonResponse({'error': f'Task with id {task_id} not found'}, status=404)
+
+        # Prepare the response manually without using a serializer
+        task_data = {
+            'id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'created_at': task.created_at.strftime('%Y-%m-%d %H:%M:%S')  # Format datetime
+        }
+
+        # Return the task data as JSON
+        return JsonResponse(task_data, status=200)
