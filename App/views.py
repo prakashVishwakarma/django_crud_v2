@@ -29,5 +29,22 @@ class CreateTaskView(View):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
 
-    def get(self, request, *args, **kwargs):
-        return JsonResponse({'error': 'Only POST method is allowed.'}, status=405)
+    def get(self, request):
+        # Fetch all tasks from the database
+        tasks = Task.objects.all()
+
+        # Prepare the data without using a serializer
+        task_list = []
+        for task in tasks:
+            task_list.append({
+                'id': task.id,
+                'title': task.title,
+                'description': task.description,
+                'created_at': task.created_at.strftime('%Y-%m-%d %H:%M:%S')  # Format datetime
+            })
+        # Check if there are no tasks in the database
+        if not tasks.exists():
+            return JsonResponse({'message': 'No tasks found'}, status=200)
+
+        # Return a Response with the list of tasks
+        return JsonResponse(task_list, safe=False)
