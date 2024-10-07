@@ -6,7 +6,8 @@ import json
 
 from rest_framework.views import APIView
 
-from .models import Task
+from .models import Task, CrudUser, UserProfile
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateTaskView(APIView):
@@ -115,3 +116,32 @@ class TaskDeleteView(APIView):
             return JsonResponse({'error': 'Task not found'}, status=404)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserProfileCurdView(View):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Parse JSON data
+            data = json.loads(request.body)
+            username = data.get('username')
+            email = data.get('email')
+            bio = data.get('bio')
+            website = data.get('website')
+
+            # Create the User
+            user = CrudUser.objects.create(username=username, email=email)
+
+            # Create the UserProfile
+            user_profile = UserProfile.objects.create(user=user, bio=bio, website=website)
+
+            # Success Response
+            return JsonResponse({
+                "message": "User and Profile created successfully",
+                "user_id": user.id,
+                "profile_id": user_profile.id
+            }, status=201)
+
+        except Exception as e:
+            # Error Response
+            return JsonResponse({"error": str(e)}, status=400)

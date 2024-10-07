@@ -1,7 +1,7 @@
 # api/urls.py
 
 from django.urls import path
-from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, TaskDeleteView
+from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, TaskDeleteView, UserProfileCurdView
 
 urlpatterns = [
     path('mymodel/', CreateTaskView.as_view(), name='mymodel'),
@@ -9,4 +9,6 @@ urlpatterns = [
     path('getbyid/<int:task_id>/', CreateTaskViewGetById.as_view(), name='getbyid'),
     path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task-delete'),
     path('put/<int:pk>/', TaskDeleteView.as_view(), name='put'),
+
+    path('create/', UserProfileCurdView.as_view(), name='put'),
 ]
