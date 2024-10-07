@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from .models import Task
 
 @method_decorator(csrf_exempt, name='dispatch')
-class CreateTaskView(View):
+class CreateTaskView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             # Parse the JSON request body
@@ -82,3 +82,36 @@ class TaskDeleteView(APIView):
             return JsonResponse({'message': 'Task deleted successfully'}, status=200)
         except Task.DoesNotExist:
             return JsonResponse({'error': 'Task not found'}, status=404)
+
+    def put(self, request, pk):
+        try:
+            # Get the task by primary key
+            task = Task.objects.get(pk=pk)
+
+            # Parse the incoming JSON data
+            body_unicode = request.body.decode('utf-8')
+            body_data = json.loads(body_unicode)
+
+            # Update task fields
+            title = body_data.get('title', task.title)
+            description = body_data.get('description', task.description)
+
+            task.title = title
+            task.description = description
+            task.save()  # Save the updated task
+
+            # Return success response
+            return JsonResponse({
+                'message': 'Task updated successfully',
+                'task': {
+                    'id': task.id,
+                    'title': task.title,
+                    'description': task.description,
+                    'created_at': task.created_at
+                }
+            }, status=200)
+
+        except Task.DoesNotExist:
+            return JsonResponse({'error': 'Task not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
