@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -145,3 +146,30 @@ class UserProfileCurdView(View):
         except Exception as e:
             # Error Response
             return JsonResponse({"error": str(e)}, status=400)
+
+
+    def get(self, request, user_id):
+        # Get the CrudUser instance
+        user = get_object_or_404(CrudUser, id=user_id)
+
+        # Fetch associated UserProfile if it exists
+        try:
+            profile = user.userprofile
+            profile_data = {
+                'bio': profile.bio,
+                'website': profile.website,
+            }
+        except UserProfile.DoesNotExist:
+            profile_data = {
+                'bio': None,
+                'website': None,
+            }
+
+        # Manually construct the response
+        response_data = {
+            'username': user.username,
+            'email': user.email,
+            'profile': profile_data
+        }
+
+        return JsonResponse(response_data)

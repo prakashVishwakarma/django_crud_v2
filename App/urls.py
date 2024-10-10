@@ -10,5 +10,6 @@ urlpatterns = [
     path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task-delete'),
     path('put/<int:pk>/', TaskDeleteView.as_view(), name='put'),
 
-    path('create/', UserProfileCurdView.as_view(), name='put'),
+    path('create/', UserProfileCurdView.as_view(), name='create'),
+    path('get_by_id/<int:user_id>/', UserProfileCurdView.as_view(), name='get_by_id'),
 ]
