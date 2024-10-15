@@ -4,11 +4,8 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import json
-
 from rest_framework.views import APIView
-
 from .models import Task, CrudUser, UserProfile
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateTaskView(APIView):
@@ -173,3 +170,35 @@ class UserProfileCurdView(View):
         }
 
         return JsonResponse(response_data)
+
+    def get(self, request):
+        try:
+            # Get all CrudUser instances
+            users = CrudUser.objects.all()
+
+            # Create a list to store user data
+            users_data = []
+
+            # Loop through all users and extract the needed information
+            for user in users:
+                # Get the associated user profile
+                user_profile = user.userprofile
+
+                # Create a dictionary for each user
+                user_data = {
+                    'username': user.username,
+                    'email': user.email,
+                    'profile': {
+                        'bio': user_profile.bio,
+                        'website': user_profile.website,
+                    }
+                }
+
+                # Add the user data to the list
+                users_data.append(user_data)
+
+            # Return the list as JSON response
+            return JsonResponse(users_data,safe=False )
+        except Exception as e:
+            # Error Response
+            return JsonResponse({"error": str(e)}, status=400)
