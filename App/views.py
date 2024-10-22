@@ -4,6 +4,8 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+from rest_framework.generics import UpdateAPIView
 from rest_framework.views import APIView
 from .models import Task, CrudUser, UserProfile
 
@@ -186,6 +188,7 @@ class UserProfileCurdView(View):
 
                 # Create a dictionary for each user
                 user_data = {
+                    'id': user.id,
                     'username': user.username,
                     'email': user.email,
                     'profile': {
@@ -202,3 +205,32 @@ class UserProfileCurdView(View):
         except Exception as e:
             # Error Response
             return JsonResponse({"error": str(e)}, status=400)
+
+class UpdateUserProfile(UpdateAPIView):
+    def put(self, request, user_id):
+        try:
+            # Get user by id
+            user = CrudUser.objects.get(pk=user_id)
+            user_profile = UserProfile.objects.get(user=user)
+
+            # Get data from the request
+            data = request.data
+
+            # Update user fields
+            user.username = data.get('username', user.username)
+            user.email = data.get('email', user.email)
+            user.save()
+
+            # Update profile fields
+            user_profile.bio = data.get('bio', user_profile.bio)
+            user_profile.website = data.get('website', user_profile.website)
+            user_profile.save()
+
+            return JsonResponse({'message': 'User profile updated successfully'}, status=200)
+
+        except CrudUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except UserProfile.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
