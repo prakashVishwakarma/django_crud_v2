@@ -1,7 +1,8 @@
 # api/urls.py
 
 from django.urls import path
-from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, UserProfileCurdView, UpdateUserProfile, AuthorCreateView
+from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, UserProfileCurdView, UpdateUserProfile, \
+    AuthorCreateView, OnlyAuthorCreateView
 
 urlpatterns = [
     path('mymodel/', CreateTaskView.as_view(), name='mymodel'),
@@ -16,4 +17,5 @@ urlpatterns = [
     path('put_one_by_one/<int:user_id>/', UpdateUserProfile.as_view(), name='put'),
     # one_to_many
     path('post_one_to_many/', AuthorCreateView.as_view(), name='AuthorCreateView'),
+    path('only_author_post_one_to_many/', OnlyAuthorCreateView.as_view(), name='OnlyAuthorCreateView'),
 ]

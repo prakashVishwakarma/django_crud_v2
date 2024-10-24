@@ -271,3 +271,34 @@ class AuthorCreateView(View):
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OnlyAuthorCreateView(View):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+
+            # Extract author details
+            author_name = data.get('author_name')
+            author_bio = data.get('author_bio')
+
+            # Validate that required fields are present
+            if not author_name:
+                return JsonResponse({'error': 'Author name is required'}, status=400)
+
+            # Create the Author
+            author = Author.objects.create(name=author_name, bio=author_bio)
+
+            # Return a success response
+            return JsonResponse({
+                'message': 'Author created successfully',
+                'author': {
+                    'id': author.id,
+                    'name': author.name,
+                    'bio': author.bio
+                }
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
