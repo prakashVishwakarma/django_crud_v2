@@ -2,7 +2,7 @@
 
 from django.urls import path
 from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, UserProfileCurdView, UpdateUserProfile, \
-    AuthorCreateView, OnlyAuthorCreateView, BookCreateView
+    AuthorCreateView, OnlyAuthorCreateView, BookCreateView, GetAllAuthorsView
 
 urlpatterns = [
     path('mymodel/', CreateTaskView.as_view(), name='mymodel'),
@@ -15,8 +15,9 @@ urlpatterns = [
     path('get_all/', UserProfileCurdView.as_view(), name='get_all'),
     path('get_by_id/<int:user_id>/', UserProfileCurdView.as_view(), name='get_by_id'),
     path('put_one_by_one/<int:user_id>/', UpdateUserProfile.as_view(), name='put'),
-    # one_to_many
+    # one_to_many POST
     path('post_one_to_many/', AuthorCreateView.as_view(), name='AuthorCreateView'),
     path('only_author_post_one_to_many/', OnlyAuthorCreateView.as_view(), name='OnlyAuthorCreateView'),
     path('only_book_post_one_to_many/<int:author_id>/', BookCreateView.as_view(), name='BookCreateView'),
+    path('get_all_authors_one_to_many/', GetAllAuthorsView.as_view(), name='GetAllAuthorsView'),
 ]

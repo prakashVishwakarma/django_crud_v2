@@ -346,3 +346,44 @@ class BookCreateView(View):
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+class GetAllAuthorsView(APIView):
+    def get(self, request):
+        try:
+            # Query all authors
+            authors = Author.objects.all()
+
+            # Create a list to store the response
+            data = []
+
+            for author in authors:
+                # For each author, get their books
+                books = Book.objects.filter(author=author)
+
+                # Create a list to store the books for each author
+                books_list = []
+
+                for book in books:
+                    # Append each book's details to the books_list
+                    books_list.append({
+                        "book_name": book.book_name,
+                        "content": book.content,
+                        "created_at": book.created_at
+                    })
+
+                # Construct the author and books information
+                author_data = {
+                    "author_name": author.name,
+                    "bio": author.bio,
+                    "books": books_list
+                }
+
+                # Append the author data to the response list
+                data.append(author_data)
+            # Return the response as JSON
+            return JsonResponse(data, safe=False)
+
+        except Exception as e:
+            # Error Response
+            return JsonResponse({"error": str(e)}, status=400)
+
