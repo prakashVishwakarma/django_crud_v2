@@ -302,3 +302,47 @@ class OnlyAuthorCreateView(View):
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BookCreateView(View):
+    def post(self, request, author_id):
+        try:
+            # Find the author by ID
+            try:
+                author = Author.objects.get(id=author_id)
+            except Author.DoesNotExist:
+                return JsonResponse({'error': 'Author not found'}, status=404)
+
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+            book_list = []
+
+            for book_data in data:
+                book_name = book_data.get('book_name')
+                content = book_data.get('content')
+
+                # Ensure both book_name and content are present for each book
+                if book_name and content:
+                    book = Book.objects.create(author=author, book_name=book_name, content=content)
+
+                    # Collect book details for the response
+                    book_dict = {
+                        'author_id': book.author.id,  # Use author id or name instead of the whole object
+                        'author_name': book.author.name,
+                        'book_name': book.book_name,
+                        'content': book.content,
+                    }
+                    book_list.append(book_dict)
+
+                else:
+                    return JsonResponse({'error': 'Each book must have a book name and content'}, status=400)
+
+            # Return a success response with the created book list
+            return JsonResponse({
+                'message': 'Books created successfully',
+                'books': book_list
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
