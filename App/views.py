@@ -387,3 +387,32 @@ class GetAllAuthorsView(APIView):
             # Error Response
             return JsonResponse({"error": str(e)}, status=400)
 
+
+class AuthorDetailByIdAPIView(APIView):
+    def get(self, request, author_id):
+        # Get the author by ID or return a 404 if not found
+        author = get_object_or_404(Author, id=author_id)
+
+        # Get all books for the specified author
+        books = Book.objects.filter(author=author)
+
+        # Create a list to store the books for the author
+        books_list = []
+
+        for book in books:
+            # Append each book's details to the books_list
+            books_list.append({
+                "book_name": book.book_name,
+                "content": book.content,
+                "created_at": book.created_at
+            })
+
+        # Construct the author and books information
+        author_data = {
+            "author_name": author.name,
+            "bio": author.bio,
+            "books": books_list
+        }
+
+        # Return the response as JSON
+        return JsonResponse(author_data, safe=False)
