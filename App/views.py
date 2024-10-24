@@ -7,7 +7,8 @@ import json
 
 from rest_framework.generics import UpdateAPIView
 from rest_framework.views import APIView
-from .models import Task, CrudUser, UserProfile
+from .models import Task, CrudUser, UserProfile, Author, Book
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateTaskView(APIView):
@@ -234,3 +235,39 @@ class UpdateUserProfile(UpdateAPIView):
             return JsonResponse({'error': 'User profile not found'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AuthorCreateView(View):
+    def post(self, request):
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+
+            # Extract author details
+            author_name = data.get('author_name')
+            author_bio = data.get('author_bio')
+            books = data.get('books', [])  # Get the list of books or default to an empty list
+
+            # Check if author_name and books are provided
+            if not author_name or not books:
+                return JsonResponse({'error': 'Author name and books are required'}, status=400)
+
+            # Create the Author
+            author = Author.objects.create(name=author_name, bio=author_bio)
+
+            # Create each book associated with the author
+            for book_data in books:
+                book_name = book_data.get('book_name')
+                content = book_data.get('content')
+
+                # Ensure both title and published_date are present for each book
+                if book_name and content:
+                    Book.objects.create(author=author, book_name=book_name, content=content)
+                else:
+                    return JsonResponse({'error': 'Each book must have a title and a published date'}, status=400)
+
+            # Return a success response
+            return JsonResponse({'message': 'Author and books created successfully'}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
