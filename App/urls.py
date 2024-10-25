@@ -2,7 +2,8 @@
 
 from django.urls import path
 from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, UserProfileCurdView, UpdateUserProfile, \
-    AuthorCreateView, OnlyAuthorCreateView, BookCreateView, GetAllAuthorsView, AuthorDetailByIdAPIView, UpdateBookView
+    AuthorCreateView, OnlyAuthorCreateView, BookCreateView, GetAllAuthorsView, AuthorDetailByIdAPIView, UpdateBookView, \
+    DeleteAuthorView, DeleteBookView
 
 urlpatterns = [
     path('mymodel/', CreateTaskView.as_view(), name='mymodel'),
@@ -22,5 +23,9 @@ urlpatterns = [
     # one_to_many GET
     path('get_all_authors_one_to_many/', GetAllAuthorsView.as_view(), name='GetAllAuthorsView'),
     path('get_author_detail_by_id_one_to_many/<int:author_id>/', AuthorDetailByIdAPIView.as_view(), name='AuthorDetailByIdAPIView'),
+    # one_to_many PUT
     path('update_book_one_to_many/<int:pk>/', UpdateBookView.as_view(), name='UpdateBookView'),
+    # one_to_many DELETE
+    path('delete_author_one_to_many/<int:pk>/', DeleteAuthorView.as_view(), name='DeleteAuthorView'),
+    path('delete_book_one_to_many/<int:author_id>/<int:book_id>/', DeleteBookView.as_view(), name='DeleteBookView'),
 ]

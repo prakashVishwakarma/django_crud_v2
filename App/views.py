@@ -464,3 +464,33 @@ class UpdateBookView(View):
                 'created_at': book.created_at
             }
         }, status=200)
+
+@method_decorator(csrf_exempt, name='dispatch')  # Exempt CSRF for testing purposes
+class DeleteAuthorView(View):
+
+    def delete(self, request, pk):
+        try:
+            # Fetch the author instance by primary key
+            author = Author.objects.get(pk=pk)
+        except Author.DoesNotExist:
+            return JsonResponse({'error': 'Author not found'}, status=404)
+
+        # Delete the author, which will also delete all related books due to CASCADE
+        author.delete()
+
+        return JsonResponse({'message': 'Author and all related books deleted successfully'}, status=200)
+
+@method_decorator(csrf_exempt, name='dispatch')  # Exempt CSRF for testing purposes
+class DeleteBookView(View):
+
+    def delete(self, request, author_id, book_id):
+        try:
+            # Fetch the book instance by book_id and author_id
+            book = Book.objects.get(pk=book_id, author_id=author_id)
+        except Book.DoesNotExist:
+            return JsonResponse({'error': 'Book not found for this author'}, status=404)
+
+        # Delete the book instance
+        book.delete()
+
+        return JsonResponse({'message': 'Book deleted successfully'}, status=200)
