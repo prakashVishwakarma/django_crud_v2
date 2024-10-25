@@ -366,6 +366,7 @@ class GetAllAuthorsView(APIView):
                 for book in books:
                     # Append each book's details to the books_list
                     books_list.append({
+                        "id": book.id,
                         "book_name": book.book_name,
                         "content": book.content,
                         "created_at": book.created_at
@@ -373,6 +374,7 @@ class GetAllAuthorsView(APIView):
 
                 # Construct the author and books information
                 author_data = {
+                    "id": author.id,
                     "author_name": author.name,
                     "bio": author.bio,
                     "books": books_list
@@ -416,3 +418,49 @@ class AuthorDetailByIdAPIView(APIView):
 
         # Return the response as JSON
         return JsonResponse(author_data, safe=False)
+
+
+@method_decorator(csrf_exempt, name='dispatch')  # To exempt CSRF for testing purposes, not recommended for production
+class UpdateBookView(View):
+
+    def put(self, request, pk):
+        try:
+            book = Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            return JsonResponse({'error': 'Book not found'}, status=404)
+
+        # Parse the request body
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Update book details
+        book_name = data.get('book_name')
+        content = data.get('content')
+        author_id = data.get('author_id')
+
+        if book_name:
+            book.book_name = book_name
+        if content:
+            book.content = content
+        if author_id:
+            try:
+                author = Author.objects.get(pk=author_id)
+                book.author = author
+            except Author.DoesNotExist:
+                return JsonResponse({'error': 'Author not found'}, status=404)
+
+        # Save the updated book
+        book.save()
+
+        return JsonResponse({
+            'message': 'Book updated successfully',
+            'book': {
+                'id': book.id,
+                'book_name': book.book_name,
+                'content': book.content,
+                'author': book.author.name,
+                'created_at': book.created_at
+            }
+        }, status=200)
