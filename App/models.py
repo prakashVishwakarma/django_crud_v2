@@ -40,3 +40,31 @@ class Book(models.Model):
         return self.book_name
 
 # Author and Post models with a one-to-many relationship - end
+
+# Student and Course models with a many-to-many relationship - start
+
+class Student(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Course(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    start_date = models.DateField()
+
+    def __str__(self):
+        return self.title
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    enrollment_date = models.DateField(auto_now_add=True)
+    grade = models.CharField(max_length=2, blank=True, null=True)  # e.g., 'A', 'B', etc.
+
+    class Meta:
+        unique_together = ('student', 'course')
+
+# Student and Course models with a many-to-many relationship - end

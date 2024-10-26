@@ -7,7 +7,7 @@ import json
 
 from rest_framework.generics import UpdateAPIView
 from rest_framework.views import APIView
-from .models import Task, CrudUser, UserProfile, Author, Book
+from .models import Task, CrudUser, UserProfile, Author, Book, Student, Course, Enrollment
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -494,3 +494,54 @@ class DeleteBookView(View):
         book.delete()
 
         return JsonResponse({'message': 'Book deleted successfully'}, status=200)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class EnrollmentCreateView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        student_data = data.get("student")
+        course_data = data.get("course")
+        grade = data.get("grade")
+
+        # Check if the student exists; create if not
+        student = Student.objects.filter(
+            name=student_data["name"],
+            email=student_data["email"]
+        ).first()
+        if not student:
+            student = Student.objects.create(
+                name=student_data["name"],
+                email=student_data["email"]
+            )
+
+        # Check if the course exists; create if not
+        course = Course.objects.filter(
+            title=course_data["title"],
+            description=course_data["description"],
+            start_date=course_data["start_date"]
+        ).first()
+        if not course:
+            course = Course.objects.create(
+                title=course_data["title"],
+                description=course_data["description"],
+                start_date=course_data["start_date"]
+            )
+
+        # Check if the enrollment exists; create if not
+        enrollment = Enrollment.objects.filter(student=student, course=course).first()
+        if not enrollment:
+            enrollment = Enrollment.objects.create(
+                student=student,
+                course=course,
+                grade=grade
+            )
+            response = {
+                "message": "Enrollment created successfully",
+                "student": student.name,
+                "course": course.title,
+                "enrollment_date": enrollment.enrollment_date,
+                "grade": enrollment.grade,
+            }
+            return JsonResponse(response, status=201)
+        else:
+            return JsonResponse({"message": "Enrollment already exists"}, status=400)
