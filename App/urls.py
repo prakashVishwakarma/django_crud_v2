@@ -33,4 +33,5 @@ urlpatterns = [
     path('get_student_course_many_to_many/', EnrollmentCreateView.as_view(), name='EnrollmentCreateViewGet'),
     path('get_student_course_many_to_many/<int:id>/', EnrollmentGetByIdView.as_view(), name='EnrollmentGetByIdView'),
     path('delete_student_course_many_to_many/<int:id>/', EnrollmentGetByIdView.as_view(), name='EnrollmentGetByIdView'),
+    path('put_student_course_many_to_many/<int:id>/', EnrollmentGetByIdView.as_view(), name='EnrollmentGetByIdView'),
 ]

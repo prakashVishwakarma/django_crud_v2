@@ -609,3 +609,47 @@ class EnrollmentGetByIdView(APIView):
         except Enrollment.DoesNotExist:
             # Return a 404 error if the enrollment is not found
             return JsonResponse({"error": "Enrollment not found"}, status=404)
+
+    def put(self, request, id):
+        try:
+            enrollment = Enrollment.objects.get(id=id)
+            data = json.loads(request.body)
+
+            # Update student information if provided
+            student_data = data.get("student")
+            if student_data:
+                enrollment.student.name = student_data.get("name", enrollment.student.name)
+                enrollment.student.email = student_data.get("email", enrollment.student.email)
+                enrollment.student.save()
+
+            # Update course information if provided
+            course_data = data.get("course")
+            if course_data:
+                enrollment.course.title = course_data.get("title", enrollment.course.title)
+                enrollment.course.description = course_data.get("description", enrollment.course.description)
+                enrollment.course.start_date = course_data.get("start_date", enrollment.course.start_date)
+                enrollment.course.save()
+
+            # Update grade if provided
+            grade = data.get("grade")
+            if grade:
+                enrollment.grade = grade
+
+            enrollment.save()
+
+            # Prepare the response data in the specified format
+            updated_data = {
+                "student": {
+                    "name": enrollment.student.name,
+                    "email": enrollment.student.email,
+                },
+                "course": {
+                    "title": enrollment.course.title,
+                    "description": enrollment.course.description,
+                    "start_date": enrollment.course.start_date,
+                },
+                "grade": enrollment.grade,
+            }
+            return JsonResponse(updated_data, status=200)
+        except Enrollment.DoesNotExist:
+            return JsonResponse({"error": "Enrollment not found"}, status=404)
