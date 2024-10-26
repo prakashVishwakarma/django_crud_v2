@@ -545,3 +545,26 @@ class EnrollmentCreateView(View):
             return JsonResponse(response, status=201)
         else:
             return JsonResponse({"message": "Enrollment already exists"}, status=400)
+
+    def get(self, request):
+        # Get all enrollment records
+        enrollments = Enrollment.objects.all()
+
+        # Format enrollment data into the specified structure
+        enrollment_data = []
+        for enrollment in enrollments:
+            enrollment_data.append({
+                "student": {
+                    "name": enrollment.student.name,
+                    "email": enrollment.student.email,
+                },
+                "course": {
+                    "title": enrollment.course.title,
+                    "description": enrollment.course.description,
+                    "start_date": enrollment.course.start_date,
+                },
+                "grade": enrollment.grade,
+            })
+
+        # Return data as JSON response
+        return JsonResponse(enrollment_data, safe=False)

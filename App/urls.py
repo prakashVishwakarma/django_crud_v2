@@ -30,4 +30,5 @@ urlpatterns = [
     path('delete_book_one_to_many/<int:author_id>/<int:book_id>/', DeleteBookView.as_view(), name='DeleteBookView'),
     # many_to_many POST
     path('create_student_course_many_to_many/', EnrollmentCreateView.as_view(), name='EnrollmentCreateView'),
+    path('get_student_course_many_to_many/', EnrollmentCreateView.as_view(), name='EnrollmentCreateViewGet'),
 ]
