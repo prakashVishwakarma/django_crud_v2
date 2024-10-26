@@ -3,7 +3,7 @@
 from django.urls import path
 from .views import CreateTaskView, CreateTaskViewGetById, TaskDeleteView, UserProfileCurdView, UpdateUserProfile, \
     AuthorCreateView, OnlyAuthorCreateView, BookCreateView, GetAllAuthorsView, AuthorDetailByIdAPIView, UpdateBookView, \
-    DeleteAuthorView, DeleteBookView, EnrollmentCreateView
+    DeleteAuthorView, DeleteBookView, EnrollmentCreateView, EnrollmentGetByIdView
 
 urlpatterns = [
     path('mymodel/', CreateTaskView.as_view(), name='mymodel'),
@@ -31,4 +31,5 @@ urlpatterns = [
     # many_to_many POST
     path('create_student_course_many_to_many/', EnrollmentCreateView.as_view(), name='EnrollmentCreateView'),
     path('get_student_course_many_to_many/', EnrollmentCreateView.as_view(), name='EnrollmentCreateViewGet'),
+    path('get_student_course_many_to_many/<int:id>/', EnrollmentGetByIdView.as_view(), name='EnrollmentGetByIdView'),
 ]

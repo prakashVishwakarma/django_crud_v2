@@ -555,6 +555,32 @@ class EnrollmentCreateView(View):
         for enrollment in enrollments:
             enrollment_data.append({
                 "student": {
+                    "id": enrollment.student.id,
+                    "name": enrollment.student.name,
+                    "email": enrollment.student.email,
+                },
+                "course": {
+                    "id": enrollment.course.id,
+                    "title": enrollment.course.title,
+                    "description": enrollment.course.description,
+                    "start_date": enrollment.course.start_date,
+                },
+                "grade": enrollment.grade,
+                "id": enrollment.id,
+            })
+
+        # Return data as JSON response
+        return JsonResponse(enrollment_data, safe=False)
+
+class EnrollmentGetByIdView(APIView):
+    def get(self, request, id):
+        try:
+            # Retrieve the specific enrollment by ID
+            enrollment = Enrollment.objects.get(id=id)
+
+            # Structure the response data
+            enrollment_data = {
+                "student": {
                     "name": enrollment.student.name,
                     "email": enrollment.student.email,
                 },
@@ -564,7 +590,10 @@ class EnrollmentCreateView(View):
                     "start_date": enrollment.course.start_date,
                 },
                 "grade": enrollment.grade,
-            })
+            }
 
-        # Return data as JSON response
-        return JsonResponse(enrollment_data, safe=False)
+            # Return data as JSON response
+            return JsonResponse(enrollment_data, status=200)
+        except Enrollment.DoesNotExist:
+            # Return a 404 error if the enrollment is not found
+            return JsonResponse({"error": "Enrollment not found"}, status=404)
