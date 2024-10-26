@@ -597,3 +597,15 @@ class EnrollmentGetByIdView(APIView):
         except Enrollment.DoesNotExist:
             # Return a 404 error if the enrollment is not found
             return JsonResponse({"error": "Enrollment not found"}, status=404)
+
+    def delete(self, request, id):
+        try:
+            # Retrieve and delete the specific enrollment by ID
+            enrollment = Enrollment.objects.get(id=id)
+            enrollment.delete()
+
+            # Return a success response
+            return JsonResponse({"message": "Enrollment deleted successfully"}, status=200)
+        except Enrollment.DoesNotExist:
+            # Return a 404 error if the enrollment is not found
+            return JsonResponse({"error": "Enrollment not found"}, status=404)
